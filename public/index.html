@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeAPI Explorer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Pokemon Explorer</h1>
+        <form id="pokeForm">
+            <div class="form-group">
+                <label for="pokemonName">Pokemon Name or ID:</label>
+                <input type="text" id="pokemonName" name="pokemonName" required placeholder="e.g., pikachu or 25">
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="includeSpecies" name="includeSpecies">
+                <label for="includeSpecies">Include Pokedex Entry (Species Data)</label>
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="includeLocation" name="includeLocation">
+                <label for="includeLocation">Include Location Encounter Data</label>
+            </div>
+            <button type="submit" id="searchBtn">Search Pokemon</button>
+        </form>
+        
+        <div id="loading" class="hidden">Searching the tall grass...</div>
+        
+        <div id="results" class="hidden"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
