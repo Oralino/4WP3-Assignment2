@@ -22,24 +22,34 @@ app.listen(PORT, () => {
 });
 
 
+
 //Route to handle AJAX requests from the front-end
 app.post("/api/pokemon", async (req, res) => {
-    //Extract the 3 parameters sent from the front-end
-    const pokemonName = req.body.pokemonName;
-    const includeSpecies = req.body.includeSpecies;
-    const includeLocation = req.body.includeLocation;
+    try {
+        const pokemonName = req.body.pokemonName;
+        const includeSpecies = req.body.includeSpecies;
+        const includeLocation = req.body.includeLocation;
 
-    console.log(`Backend received request for Pokemon: ${pokemonName}`);
-    console.log(`Include Species: ${includeSpecies}, Include Location: ${includeLocation}`);
+        console.log(`Fetching data for: ${pokemonName}`);
 
-    //Echoing data for testing purposes
-    res.json({
-        status: "success",
-        message: `Backend successfully received your request to search for ${pokemonName}!`,
-        paramsReceived: {
-            name: pokemonName,
-            species: includeSpecies,
-            location: includeLocation
-        }
-    });
+        //Fetch the base Pokemon data
+        const baseResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+        
+        //Sends data from front end
+        let pokemonData = {
+            name: baseResponse.data.name,
+            id: baseResponse.data.id,
+            height: baseResponse.data.height,
+            weight: baseResponse.data.weight,
+            sprite: baseResponse.data.sprites.front_default
+        };
+
+        //Send it back to the client
+        res.json({ status: "success", data: pokemonData });
+
+    } catch (error) {
+        console.error("API Error:", error.message);
+        //If PokeAPI returns a 404 Pokemon doesn't exist
+        res.status(404).json({ status: "error", message: "Pokemon not found! Check your spelling." });
+    }
 });
