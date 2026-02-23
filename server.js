@@ -50,7 +50,8 @@ app.post("/api/pokemon", async (req, res) => {
             //Find the first English Pokedex entry
             const entry = speciesResponse.data.flavor_text_entries.find(e => e.language.name === "en");
             
-            pokemonData.description = entry ? entry.flavor_text : "No description available.";
+            //Strip out hidden line breaks etc
+            pokemonData.description = entry ? entry.flavor_text.replace(/[\n\f\r]/g, ' ') : "No description available.";
         }
 
         //Conditionally fetch Location data if requested
