@@ -44,6 +44,28 @@ app.post("/api/pokemon", async (req, res) => {
             sprite: baseResponse.data.sprites.front_default
         };
 
+        //Conditionally fetch Species data if requested
+        if (includeSpecies) {
+            const speciesResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokemonName}`);
+            //Find the first English Pokedex entry
+            const entry = speciesResponse.data.flavor_text_entries.find(e => e.language.name === "en");
+            
+            pokemonData.description = entry ? entry.flavor_text : "No description available.";
+        }
+
+        //Conditionally fetch Location data if requested
+        if (includeLocation) {
+            const locationResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemonName}/encounters`);
+            
+            if (locationResponse.data.length > 0) {
+                //Grab the first 3 locations
+                pokemonData.locations = locationResponse.data.slice(0, 3).map(loc => loc.location_area.name.replace(/-/g, ' '));
+            } else {
+                pokemonData.locations = ["Cannot be caught in the wild."];
+            }
+        }
+
+
         //Send it back to the client
         res.json({ status: "success", data: pokemonData });
 
