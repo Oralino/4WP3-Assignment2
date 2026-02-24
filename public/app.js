@@ -25,31 +25,73 @@ document.getElementById('pokeForm').addEventListener('submit', async function(ev
     resultsDiv.classList.add('hidden');
     resultsDiv.innerHTML = ""; 
 
-    try {
-        //Send data as JSON in the body
+   try {
         const response = await fetch('/api/pokemon', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestData)
         });
 
-        if (!response.ok) {
-            throw new Error(`Server returned status ${response.status}`);
+        const data = await response.json();
+        
+        //Handle 404 Not Found errors
+        if (data.status === "error") {
+            resultsDiv.innerHTML = `<p style="color:red; font-weight:bold; text-align:center;">${data.message}</p>`;
+            resultsDiv.classList.remove('hidden');
+            return;
         }
 
-        //Receive JSON response from the backend
-        const data = await response.json();
-        console.log("Received from server:", data);
+        const pData = data.data; //Extract the pokemonData
 
-        //Temporarily dump the JSON for testing
-        resultsDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        //HTML layout dynamically
+        let htmlContent = `
+            <h2 style="text-align: center; text-transform: capitalize;">${pData.name} (#${pData.id})</h2>
+            <img src="${pData.sprite}" alt="${pData.name} sprite" style="width: 150px; height: 150px; display: block; margin: 0 auto;">
+            <table>
+                <tbody>
+                    <tr>
+                        <th style="width: 30%;">Height</th>
+                        <td>${pData.height / 10} m</td>
+                    </tr>
+                    <tr>
+                        <th>Weight</th>
+                        <td>${pData.weight / 10} kg</td>
+                    </tr>
+        `;
+
+        //Conditionally add the description row if the user requested it
+        if (pData.description) {
+            htmlContent += `
+                    <tr>
+                        <th>Pokedex Entry</th>
+                        <td>${pData.description}</td>
+                    </tr>
+            `;
+        }
+
+        //Conditionally add the locations row if the user requested it
+        if (pData.locations) {
+            const locationsHtml = pData.locations.join('<br>');
+            htmlContent += `
+                    <tr>
+                        <th>Encounter Locations</th>
+                        <td style="text-transform: capitalize;">${locationsHtml}</td>
+                    </tr>
+            `;
+        }
+
+        htmlContent += `
+                </tbody>
+            </table>
+        `;
+
+        //Inject the HTML into the page
+        resultsDiv.innerHTML = htmlContent;
         resultsDiv.classList.remove('hidden');
 
     } catch (error) {
         console.error("AJAX error:", error);
-        resultsDiv.innerHTML = `<p style="color:red; font-weight:bold;">Error communicating with server.</p>`;
+        resultsDiv.innerHTML = `<p style="color:red; font-weight:bold; text-align:center;">Error communicating with server.</p>`;
         resultsDiv.classList.remove('hidden');
     } finally {
         loadingIndicator.classList.add('hidden');
