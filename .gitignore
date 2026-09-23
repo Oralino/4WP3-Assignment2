@@ -1,1 +1,9 @@
 node_modules/
+
+# Assignment spec PDFs belong to the instructor: never commit
+*.pdf
+
+# Secrets
+.env
+.env.*
+!.env.example
